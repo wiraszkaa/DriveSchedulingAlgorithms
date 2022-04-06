@@ -166,7 +166,7 @@ public class RequestBuilder {
                 "\nsegments=" + segments +
                 "\npositionInSegments=" + positionInSegments +
                 "\ndensityInSegments=" + densityInSegments +
-                "\nBTlimits=" + limitsToString(positionLimits) +
+                "\npositionlimits=" + limitsToString(positionLimits) +
                 "\ndensityLimits=" + limitsToString(densityLimits);
     }
 

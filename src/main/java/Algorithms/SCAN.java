@@ -1,6 +1,7 @@
 package Algorithms;
 
 import Request.Request;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
@@ -14,7 +15,8 @@ public class SCAN implements Algorithm {
     private boolean isMovingRight;
     private ListIterator<Request> iterator;
 
-    private boolean isC_SCAN;
+    private boolean isCSCAN;
+    private int cSCANSwitches;
 
     private VectorScatter vs;
 
@@ -26,21 +28,21 @@ public class SCAN implements Algorithm {
         totalMoves = 0;
         currentTime = 0;
 
-        isC_SCAN = false;
+        isCSCAN = false;
+        cSCANSwitches = 0;
     }
 
-    public SCAN(int startingPosition) {
-        this(startingPosition, true);
-        isC_SCAN = true;
+    public SCAN(int startingPosition, boolean isStartingRight, boolean isCSCAN) {
+        this(startingPosition, isStartingRight);
+        this.isCSCAN = isCSCAN;
     }
 
     @Override
     public int start(List<Request> requests, int size) {
-        // TODO
-        vs = new VectorScatter(isC_SCAN ? "C-SCAN" : "SCAN");
+        vs = new VectorScatter(isCSCAN ? "C-SCAN" : "SCAN");
 
-        System.out.printf("Starting %sSCAN...%n", isC_SCAN ? "C-" : "");
-        if(currentPosition > size || currentPosition < 0) {
+        System.out.printf("Starting %sSCAN...%n", isCSCAN ? "C-" : "");
+        if (currentPosition > size || currentPosition < 0) {
             System.out.println("Setting Starting Position to 0...");
             currentPosition = 0;
         }
@@ -79,14 +81,14 @@ public class SCAN implements Algorithm {
     }
 
     private void move(Request lastRequest, boolean isMovingRight) {
-        if(isMovingRight) {
-            moveRight(lastRequest);
+        if (isMovingRight) {
+            moveRight(lastRequest, isCSCAN);
         } else {
-            moveLeft(lastRequest);
+            moveLeft(lastRequest, isCSCAN);
         }
     }
 
-    private void moveLeft(Request lastRequest) {
+    private void moveLeft(Request lastRequest, boolean isC_SCAN) {
         while (iterator.hasPrevious()) {
             Request request = iterator.previous();
             if (request == lastRequest) {
@@ -94,28 +96,44 @@ public class SCAN implements Algorithm {
             }
             scanMovingHandler(request, false);
         }
-        if(!iterator.hasPrevious()) {
-            this.isMovingRight = true;
+        if (!iterator.hasPrevious()) {
             totalMoves += currentPosition;
             currentTime += currentPosition;
-            currentPosition = 0;
+            if (!isC_SCAN) {
+                this.isMovingRight = true;
+                currentPosition = 0;
+            } else {
+                while(iterator.hasNext()) {
+                    iterator.next();
+                }
+                currentPosition = size;
+                cSCANSwitches++;
+            }
         }
     }
 
-    private void moveRight(Request lastRequest) {
-        while(iterator.hasNext()) {
+    private void moveRight(Request lastRequest, boolean isC_SCAN) {
+        while (iterator.hasNext()) {
             Request request = iterator.next();
-            if(request == lastRequest) {
+            if (request == lastRequest) {
                 break;
             }
             scanMovingHandler(request, true);
         }
-        if(!iterator.hasNext()) {
-            this.isMovingRight = false;
+        if (!iterator.hasNext()) {
             int movedBy = size - currentPosition;
             totalMoves += movedBy;
             currentTime += movedBy;
-            currentPosition = size;
+            if (!isC_SCAN) {
+                this.isMovingRight = false;
+                currentPosition = size;
+            } else {
+                while(iterator.hasPrevious()) {
+                    iterator.previous();
+                }
+                currentPosition = 0;
+                cSCANSwitches++;
+            }
         }
     }
 
