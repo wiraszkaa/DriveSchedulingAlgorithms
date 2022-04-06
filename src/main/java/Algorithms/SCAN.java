@@ -1,6 +1,7 @@
 package Algorithms;
 
 import Request.Request;
+import org.jfree.chart.JFreeChart;
 
 import java.util.Comparator;
 import java.util.List;
@@ -54,7 +55,6 @@ public class SCAN implements Algorithm {
         while (completed < requests.size()) {
             move(null, isMovingRight);
         }
-        vs.showChart();
         return totalMoves;
     }
 
@@ -140,5 +140,10 @@ public class SCAN implements Algorithm {
     @Override
     public void setPriorityRequestsAmount(int amount) {
 
+    }
+
+    @Override
+    public JFreeChart getChart() {
+        return vs.createChart();
     }
 }

@@ -1,6 +1,7 @@
 package Algorithms;
 
 import Request.Request;
+import org.jfree.chart.JFreeChart;
 
 import java.util.*;
 
@@ -145,5 +146,10 @@ public class FD_SCAN implements Algorithm {
     @Override
     public void setPriorityRequestsAmount(int amount) {
         priorityRequestsAmount = amount;
+    }
+
+    @Override
+    public JFreeChart getChart() {
+        return null;
     }
 }

@@ -1,19 +1,23 @@
 package Algorithms;
 
 import Request.Request;
+import org.jfree.chart.JFreeChart;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SSTF implements Algorithm {
     private int currentPosition;
+
+    private VectorScatter vs;
+
     public SSTF(int startingPosition) {
         currentPosition = startingPosition;
+        vs = new VectorScatter("SSTF");
     }
 
     @Override
     public int start(List<Request> requests, int size) {
-        VectorScatter vs = new VectorScatter("SSTF");
-
         System.out.println("Starting SSTF...");
         if(currentPosition > size || currentPosition < 0) {
             System.out.println("Setting Starting Position to 0...");
@@ -50,12 +54,16 @@ public class SSTF implements Algorithm {
                 }
             }
         }
-        vs.showChart();
         return totalMoves;
     }
 
     @Override
     public void setPriorityRequestsAmount(int amount) {
 
+    }
+
+    @Override
+    public JFreeChart getChart() {
+        return vs.createChart();
     }
 }

@@ -1,6 +1,8 @@
 package Algorithms;
 
 import Request.Request;
+import org.jfree.chart.JFreeChart;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,8 @@ public class FCFS implements Algorithm {
     private int priorityRequestsAmount;
 
     private boolean isEDFEnabled = false;
+
+    private VectorScatter vs;
 
     public FCFS(int startingPosition) {
         currentPosition = startingPosition;
@@ -21,7 +25,7 @@ public class FCFS implements Algorithm {
 
     @Override
     public int start(List<Request> requests, int size) {
-        VectorScatter vs = new VectorScatter(isEDFEnabled ? "FCFS EDF" : "FCFS");
+        vs = new VectorScatter(isEDFEnabled ? "FCFS EDF" : "FCFS");
 
         System.out.println("Starting FCFS...");
         if (currentPosition > size || currentPosition < 0) {
@@ -79,12 +83,16 @@ public class FCFS implements Algorithm {
             int failed = (int) requests.stream().filter((o) -> !o.isCompleted).count();
             System.out.printf("Failed %s of %s priority requests%n", failed, priorityRequestsAmount);
         }
-        vs.showChart();
         return totalMoves;
     }
 
     @Override
     public void setPriorityRequestsAmount(int amount) {
         priorityRequestsAmount = amount;
+    }
+
+    @Override
+    public JFreeChart getChart() {
+        return vs.createChart();
     }
 }

@@ -7,18 +7,19 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.VectorRenderer;
 import org.jfree.chart.ui.ApplicationFrame;
-import org.jfree.chart.ui.UIUtils;
 import org.jfree.data.xy.VectorSeries;
 import org.jfree.data.xy.VectorSeriesCollection;
 import java.awt.*;
 
 public class VectorScatter extends ApplicationFrame {
+    private final String title;
     private final VectorSeries vectorSeries;
     private Request lastRequest;
 
     public VectorScatter(String title) {
         super(title);
         vectorSeries = new VectorSeries("Moves");
+        this.title = title;
     }
 
     public void addToChart(Request request) {
@@ -31,7 +32,7 @@ public class VectorScatter extends ApplicationFrame {
         lastRequest = request;
     }
 
-    public void showChart() {
+    public JFreeChart createChart() {
         VectorSeriesCollection vectorSeriesCollection = new VectorSeriesCollection();
         vectorSeriesCollection.addSeries(vectorSeries);
 
@@ -41,14 +42,13 @@ public class VectorScatter extends ApplicationFrame {
         XYPlot xyPlot = new XYPlot(vectorSeriesCollection, new NumberAxis("Position"), new NumberAxis("Arrival Time"), r);
 
         JFreeChart chart = new JFreeChart(xyPlot);
+        chart.setTitle(title);
         ChartPanel chartPanel = new ChartPanel(chart, false);
         chartPanel.setFillZoomRectangle(true);
         chartPanel.setMouseWheelEnabled(true);
         chartPanel.setPreferredSize(new Dimension(1000, 500));
         setContentPane(chartPanel);
 
-        this.pack();
-        UIUtils.centerFrameOnScreen(this);
-        this.setVisible(true);
+        return chart;
     }
 }
