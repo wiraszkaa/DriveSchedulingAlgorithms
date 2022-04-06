@@ -2,24 +2,33 @@ package Algorithms;
 
 import Request.Request;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class SSTF implements Algorithm {
+    private int currentPosition;
+    public SSTF(int startingPosition) {
+        currentPosition = startingPosition;
+    }
+
     @Override
-    public int start(List<Request> requests) {
+    public int start(List<Request> requests, int size) {
+        VectorScatter vs = new VectorScatter("SSTF");
+
         System.out.println("Starting SSTF...");
+        if(currentPosition > size || currentPosition < 0) {
+            System.out.println("Setting Starting Position to 0...");
+            currentPosition = 0;
+        }
         int lastRequest = 0;
 
         int completed = 0;
         int totalMoves = 0;
 
         int currentTime = requests.get(0).arrivalTime;
-        int currentPosition = 0;
         List<Request> currentRequests = new ArrayList<>();
 
         while(completed < requests.size()) {
-            lastRequest = addRequests(requests, currentRequests, lastRequest, currentTime);
+            lastRequest = RequestAdder.addRequests(requests, currentRequests, lastRequest, currentTime);
             if(currentRequests.size() > 0) {
                 Request curr = currentRequests.get(0);
                 for(Request i: currentRequests) {
@@ -33,6 +42,7 @@ public class SSTF implements Algorithm {
                 currentTime = totalMoves;
 
                 curr.isCompleted = true;
+                vs.addToChart(curr);
                 completed++;
             } else {
                 if(lastRequest < requests.size()) {
@@ -40,19 +50,12 @@ public class SSTF implements Algorithm {
                 }
             }
         }
+        vs.showChart();
         return totalMoves;
     }
 
-    private static int addRequests(List<Request> requests, Collection<Request> currentRequests, int lastRequest, double currentTime) {
-        for(int i = lastRequest; i < requests.size(); i++) {
-            Request request = requests.get(i);
-            if(request.arrivalTime <= currentTime) {
-                currentRequests.add(request);
-                lastRequest = request.id + 1;
-            } else {
-                break;
-            }
-        }
-        return lastRequest;
+    @Override
+    public void setPriorityRequestsAmount(int amount) {
+
     }
 }

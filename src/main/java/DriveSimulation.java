@@ -1,8 +1,6 @@
-
 import Algorithms.Algorithm;
 import Request.Request;
 import Request.RequestBuilder;
-
 import javax.management.InvalidAttributeValueException;
 import java.util.Collection;
 
@@ -16,10 +14,11 @@ public class DriveSimulation {
     }
 
     public void start(Algorithm algorithm) {
+        algorithm.setPriorityRequestsAmount(requestBuilder.getPriorityRequestsAmount());
         long start = System.nanoTime();
-        int totalMoves = algorithm.start(requestBuilder.createCopy());
+        int totalMoves = algorithm.start(requestBuilder.createCopy(), requestBuilder.getDriveSize());
         long finish = (System.nanoTime() - start);
-        System.out.println(" moved by " + totalMoves);
+        System.out.println("Head moved by " + totalMoves);
         System.out.println("Simulation took " + ElapsedTimeString.getTime(finish));
     }
 

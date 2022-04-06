@@ -12,6 +12,8 @@ public class Request implements Cloneable {
         this.position = position;
         this.arrivalTime = arrivalTime;
         this.isCompleted = false;
+
+        this.deadLine = -1;
     }
 
     public Request clone() {

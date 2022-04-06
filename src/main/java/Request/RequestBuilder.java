@@ -1,8 +1,6 @@
 package Request;
 
 import Algorithms.Amount;
-import Request.Request;
-
 import javax.management.InvalidAttributeValueException;
 import java.util.*;
 
@@ -12,6 +10,7 @@ public class RequestBuilder {
     private int lastRequestPosition;
 
     private final int requestsAmount;
+    private int priorityRequestsAmount;
     private final int driveSize;
     private int segments;
     private List<Amount> positionInSegments;
@@ -28,6 +27,7 @@ public class RequestBuilder {
         lastRequestID = 0;
         lastRequestArrival = 0;
         lastRequestPosition = 0;
+        priorityRequestsAmount = 0;
 
         segments = 3;
         positionInSegments = new ArrayList<>(Arrays.asList(Amount.MEDIUM, Amount.MEDIUM, Amount.MEDIUM));
@@ -94,6 +94,12 @@ public class RequestBuilder {
                     lastRequestID,
                     rand(minPosition, maxPosition),
                     lastRequestArrival + rand(lowDensity, highDensity));
+
+            if(rand(0, 10) > 7) {
+                request.deadLine = rand(request.arrivalTime + 10, request.arrivalTime + 50);
+                priorityRequestsAmount++;
+            }
+
             requests.add(request);
             lastRequestID++;
             lastRequestArrival = request.arrivalTime;
@@ -162,5 +168,13 @@ public class RequestBuilder {
                 "\ndensityInSegments=" + densityInSegments +
                 "\nBTlimits=" + limitsToString(positionLimits) +
                 "\ndensityLimits=" + limitsToString(densityLimits);
+    }
+
+    public int getDriveSize() {
+        return driveSize;
+    }
+
+    public int getPriorityRequestsAmount() {
+        return priorityRequestsAmount;
     }
 }
