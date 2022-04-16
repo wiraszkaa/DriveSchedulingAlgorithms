@@ -9,11 +9,10 @@ import java.util.List;
 public class SSTF implements Algorithm {
     private int currentPosition;
 
-    private VectorScatter vs;
+    private AlgorithmParameters ap;
 
     public SSTF(int startingPosition) {
         currentPosition = startingPosition;
-        vs = new VectorScatter("SSTF");
     }
 
     @Override
@@ -23,38 +22,43 @@ public class SSTF implements Algorithm {
             System.out.println("Setting Starting Position to 0...");
             currentPosition = 0;
         }
+        ap = new AlgorithmParameters(size);
+        ap.currentPosition = currentPosition;
+        ap.currentTime = requests.get(0).arrivalTime;
+        ap.completed = 0;
+        ap.totalMoves = 0;
+        ap.vs = new VectorScatter("SSTF");
+
         int lastRequest = 0;
 
-        int completed = 0;
-        int totalMoves = 0;
-
-        int currentTime = requests.get(0).arrivalTime;
         List<Request> currentRequests = new ArrayList<>();
 
-        while(completed < requests.size()) {
-            lastRequest = RequestAdder.addRequests(requests, currentRequests, lastRequest, currentTime);
+        while(ap.completed < requests.size()) {
+            lastRequest = RequestAdder.addRequests(requests, currentRequests, lastRequest, ap.currentTime);
             if(currentRequests.size() > 0) {
                 Request curr = currentRequests.get(0);
                 for(Request i: currentRequests) {
-                    if(Math.abs(currentPosition - i.position) < Math.abs(currentPosition - curr.position)) {
+                    if(Math.abs(ap.currentPosition - i.position) < Math.abs(ap.currentPosition - curr.position)) {
                         curr = i;
                     }
                 }
-                totalMoves += Math.abs(currentPosition - curr.position);
-                currentPosition = curr.position;
+                int movedBy = Math.abs(ap.currentPosition - curr.position);
+                ap.currentTime += movedBy;
+                ap.totalMoves += movedBy;
+
+                ap.currentPosition = curr.position;
                 currentRequests.remove(curr);
-                currentTime = totalMoves;
 
                 curr.isCompleted = true;
-                vs.addToChart(curr);
-                completed++;
+                ap.vs.addToChart(curr);
+                ap.completed++;
             } else {
                 if(lastRequest < requests.size()) {
-                    currentTime = requests.get(lastRequest).arrivalTime;
+                    ap.currentTime = requests.get(lastRequest).arrivalTime;
                 }
             }
         }
-        return totalMoves;
+        return ap.totalMoves;
     }
 
     @Override
@@ -64,6 +68,6 @@ public class SSTF implements Algorithm {
 
     @Override
     public JFreeChart getChart() {
-        return vs.createChart();
+        return ap.vs.createChart();
     }
 }

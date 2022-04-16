@@ -1,5 +1,5 @@
 package Algorithms;
 
 public enum Amount {
-    LOW, MEDIUM, HIGH;
+    NONE, LOW, MEDIUM, HIGH;
 }

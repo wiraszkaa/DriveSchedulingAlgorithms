@@ -4,86 +4,88 @@ import Request.Request;
 import org.jfree.chart.JFreeChart;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class FCFS implements Algorithm {
     private int currentPosition;
     private int priorityRequestsAmount;
+    private AlgorithmParameters ap;
 
-    private boolean isEDFEnabled = false;
-
-    private VectorScatter vs;
+    private PriorityAlgorithms priorityAlgorithms;
 
     public FCFS(int startingPosition) {
         currentPosition = startingPosition;
+        priorityAlgorithms = PriorityAlgorithms.NONE;
     }
 
-    public FCFS(int startingPosition, boolean isEDFEnabled) {
+    public FCFS(int startingPosition, PriorityAlgorithms priorityAlgorithms) {
         this(startingPosition);
-        this.isEDFEnabled = isEDFEnabled;
+        this.priorityAlgorithms = priorityAlgorithms;
     }
 
     @Override
     public int start(List<Request> requests, int size) {
-        vs = new VectorScatter(isEDFEnabled ? "FCFS EDF" : "FCFS");
-
-        System.out.println("Starting FCFS...");
+        String name;
+        switch (priorityAlgorithms) {
+            default -> name = "FCFS";
+            case EDF -> name = "FCFS EDF";
+            case FDSCAN -> name = "FCFS FD-SCAN";
+        }
+        System.out.printf("Starting %s...\n", name);
         if (currentPosition > size || currentPosition < 0) {
             System.out.println("Setting Starting Position to 0...");
             currentPosition = 0;
         }
-        int totalMoves = 0;
-        if (!isEDFEnabled) {
-            for (Request i : requests) {
-                totalMoves += Math.abs(currentPosition - i.position);
-                currentPosition = i.position;
-                i.isCompleted = true;
-
-                vs.addToChart(i);
-            }
-        } else {
-            ArrayList<Request> normalRequests = new ArrayList<>();
-            ArrayList<Request> priorityRequests = new ArrayList<>();
+        ArrayList<Request> requestsCopy = new ArrayList<>();
+        ArrayList<Request> priorityRequests = new ArrayList<>();
+        if (priorityAlgorithms != PriorityAlgorithms.NONE) {
             for (Request request : requests) {
-                if (request.deadLine == -1) {
-                    normalRequests.add(request);
-                } else {
+                if (request.deadLine != -1) {
                     priorityRequests.add(request);
                 }
+                requestsCopy.add(request);
             }
-            System.out.println("EDF Enabled...");
-            for (Request normal : normalRequests) {
-                Request request = null;
-                boolean flag = false;
-                for (Request priority : priorityRequests) {
-                    if (priority.arrivalTime <= totalMoves) {
-                        if (!flag) {
-                            request = priority;
-                            flag = true;
-                        }
-                        if (request.deadLine - totalMoves > priority.deadLine - totalMoves) {
-                            request = priority;
-                        }
-                    }
-                }
-                if (request != null) {
-                    totalMoves += Math.abs(currentPosition - request.position);
-                    currentPosition = request.position;
-                    vs.addToChart(request);
-                    if (totalMoves <= request.deadLine) {
-                        request.isCompleted = true;
-                    }
-                    priorityRequests.remove(request);
-                }
-                totalMoves += Math.abs(currentPosition - normal.position);
-                currentPosition = normal.position;
-                vs.addToChart(normal);
-                normal.isCompleted = true;
-            }
-            int failed = (int) requests.stream().filter((o) -> !o.isCompleted).count();
-            System.out.printf("Failed %s of %s priority requests%n", failed, priorityRequestsAmount);
         }
-        return totalMoves;
+        if (priorityAlgorithms == PriorityAlgorithms.FDSCAN) {
+            requestsCopy.sort(Comparator.comparingInt((o) -> o.position));
+        }
+
+        ap = new AlgorithmParameters(size);
+        ap.currentTime = requests.get(0).arrivalTime;
+        ap.currentPosition = currentPosition;
+        ap.totalMoves = 0;
+        ap.vs = new VectorScatter(name);
+        ap.priorityRequests = priorityRequests;
+
+        int failedCount = 0;
+        for (Request request : requests) {
+            if (priorityAlgorithms == PriorityAlgorithms.EDF) {
+                failedCount += AlgorithmHelper.handleEDF(ap);
+            } else if (priorityAlgorithms == PriorityAlgorithms.FDSCAN) {
+                AlgorithmHelper.handleFDSCAN(requestsCopy, ap);
+            }
+            if (!request.isCompleted) {
+                if (priorityAlgorithms == PriorityAlgorithms.NONE || request.deadLine == -1) {
+                    int movedBy = Math.abs(ap.currentPosition - request.position);
+                    ap.currentTime += movedBy;
+                    if (request.arrivalTime > ap.currentTime) {
+                        ap.currentTime = request.arrivalTime;
+                    }
+                    ap.totalMoves += movedBy;
+                    ap.currentPosition = request.position;
+                    request.isCompleted = true;
+                    ap.vs.addToChart(request);
+                }
+            }
+        }
+        if (priorityAlgorithms == PriorityAlgorithms.FDSCAN) {
+           failedCount = (int) requests.stream().filter((o) -> !o.isCompleted).count();
+        }
+        if (priorityAlgorithms != PriorityAlgorithms.NONE) {
+            System.out.printf("Failed %s of %s priority requests%n", failedCount, priorityRequestsAmount);
+        }
+        return ap.totalMoves;
     }
 
     @Override
@@ -93,6 +95,6 @@ public class FCFS implements Algorithm {
 
     @Override
     public JFreeChart getChart() {
-        return vs.createChart();
+        return ap.vs.createChart();
     }
 }
