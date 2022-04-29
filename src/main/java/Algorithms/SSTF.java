@@ -16,7 +16,7 @@ public class SSTF implements Algorithm {
     }
 
     @Override
-    public int start(List<Request> requests, int size) {
+    public AlgorithmParameters start(List<Request> requests, int size) {
         System.out.println("Starting SSTF...");
         if(currentPosition > size || currentPosition < 0) {
             System.out.println("Setting Starting Position to 0...");
@@ -58,7 +58,7 @@ public class SSTF implements Algorithm {
                 }
             }
         }
-        return ap.totalMoves;
+        return ap;
     }
 
     @Override

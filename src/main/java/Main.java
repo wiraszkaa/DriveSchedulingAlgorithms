@@ -7,10 +7,10 @@ public class Main {
     public static void main(String[] args) throws InvalidAttributeValueException {
         RequestBuilder rb = new RequestBuilder(1000, 100);
 
-        rb.requestsDensityInSegments(List.of(Amount.MEDIUM, Amount.HIGH, Amount.MEDIUM));
-        rb.requestsPositionInSegments(List.of(Amount.HIGH, Amount.NONE, Amount.HIGH));
-        rb.requestsDeadlineInSegments(List.of(Amount.HIGH, Amount.HIGH, Amount.HIGH));
-        rb.requestsPriorityChanceInSegments(List.of(Amount.NONE, Amount.NONE, Amount.NONE));
+        rb.requestsDensityInSegments(List.of(Amount.LOW, Amount.LOW, Amount.LOW));
+        rb.requestsPositionInSegments(List.of(Amount.HIGH, Amount.HIGH, Amount.HIGH));
+        rb.requestsDeadlineInSegments(List.of(Amount.HIGH, Amount.MEDIUM, Amount.HIGH));
+        rb.requestsPriorityChanceInSegments(List.of(Amount.NONE, Amount.LOW, Amount.NONE));
         DriveSimulation ds = new DriveSimulation(rb);
 
         ds.start(new FCFS(0));

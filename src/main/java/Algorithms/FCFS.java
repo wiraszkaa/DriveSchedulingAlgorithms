@@ -25,7 +25,7 @@ public class FCFS implements Algorithm {
     }
 
     @Override
-    public int start(List<Request> requests, int size) {
+    public AlgorithmParameters start(List<Request> requests, int size) {
         String name;
         switch (priorityAlgorithms) {
             default -> name = "FCFS";
@@ -85,7 +85,7 @@ public class FCFS implements Algorithm {
         if (priorityAlgorithms != PriorityAlgorithms.NONE) {
             System.out.printf("Failed %s of %s priority requests%n", failedCount, priorityRequestsAmount);
         }
-        return ap.totalMoves;
+        return ap;
     }
 
     @Override

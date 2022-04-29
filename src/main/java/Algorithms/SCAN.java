@@ -29,7 +29,7 @@ public class SCAN implements Algorithm {
     }
 
     @Override
-    public int start(List<Request> requests, int size) {
+    public AlgorithmParameters start(List<Request> requests, int size) {
         System.out.printf("Starting %sSCAN...%n", isCSCAN ? "C-" : "");
         if (currentPosition > size || currentPosition < 0) {
             System.out.println("Setting Starting Position to 0...");
@@ -49,7 +49,7 @@ public class SCAN implements Algorithm {
         while (ap.completed < requests.size()) {
             AlgorithmHelper.move(null, iterator, ap);
         }
-        return ap.totalMoves;
+        return ap;
     }
 
     @Override

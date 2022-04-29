@@ -1,4 +1,5 @@
 import Algorithms.Algorithm;
+import Algorithms.AlgorithmParameters;
 import Request.RequestBuilder;
 import org.jfree.chart.ChartPanel;
 import javax.management.InvalidAttributeValueException;
@@ -20,9 +21,12 @@ public class DriveSimulation {
     public void start(Algorithm algorithm) {
         algorithm.setPriorityRequestsAmount(requestBuilder.getPriorityRequestsAmount());
         long start = System.nanoTime();
-        int totalMoves = algorithm.start(requestBuilder.createCopy(), requestBuilder.getDriveSize());
+        AlgorithmParameters ap = algorithm.start(requestBuilder.createCopy(), requestBuilder.getDriveSize());
         long finish = (System.nanoTime() - start);
-        System.out.println("Head moved by " + totalMoves);
+        System.out.println("Head moved by " + ap.totalMoves);
+        if(ap.isCSCAN) {
+            System.out.printf("Head switched %s times\n", ap.cSCANSwitches);
+        }
         System.out.println("Simulation took " + ElapsedTimeString.getTime(finish));
 
         panel.add(new ChartPanel(algorithm.getChart()));
